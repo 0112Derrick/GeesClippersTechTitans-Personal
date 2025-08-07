@@ -82,19 +82,6 @@
   },
   {
     "date": "2023/08/22",
-    "rating": 1,
-    "tags": [
-      "barbers",
-      "service",
-      "staff",
-      "time"
-    ],
-    "name": "Anonymous",
-    "testimony": "“Barber showed up late to my appointment and then cut someone before me.”",
-    "id": 1692721410296
-  },
-  {
-    "date": "2023/08/22",
     "rating": 4,
     "tags": [
       "service",
@@ -158,5 +145,48 @@
       "service"
     ],
     "id": 1695230328552
+  },
+  {
+    "date": "2023/11/08",
+    "rating": 4,
+    "testimony": "“Loved visiting the medical clinic.”",
+    "name": "Sarah",
+    "tags": [
+      "medical-clinic"
+    ],
+    "id": 1699505864770
+  },
+  {
+    "date": "2023/12/12",
+    "rating": 5,
+    "testimony": "“I feel like a real man now, im so glad I got the man talk with the bros!”",
+    "name": "Sarah",
+    "tags": [
+      "real-men-real-talk",
+      "service",
+      "event",
+      "staff"
+    ],
+    "id": 1702446849947
+  },
+  {
+    "date": "2024/03/19",
+    "rating": 4,
+    "testimony": "“Hello”",
+    "name": "Sarah",
+    "tags": [
+      "barbers"
+    ],
+    "id": 1710896180737
+  },
+  {
+    "date": "2024/06/05",
+    "rating": 4,
+    "testimony": "“Yes”",
+    "name": "Derrick",
+    "tags": [
+      "medical-clinic"
+    ],
+    "id": 1717633899059
   }
 ]

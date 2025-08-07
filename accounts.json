@@ -12,12 +12,5 @@
     "accountType": "barber",
     "id": 1693359363262,
     "loggedIN": false
-  },
-  {
-    "id": 1693792277289,
-    "login": "Lucky123",
-    "password": "123",
-    "accountType": "barber",
-    "loggedIn": false
   }
 ]

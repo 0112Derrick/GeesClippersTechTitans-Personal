@@ -114,16 +114,5 @@
       "../images/barbers/freshcut8.jpeg",
       "../images/barbers/freshcut1.jpeg"
     ]
-  },
-  {
-    "id": 1693792277289,
-    "name": "LuckyDaBarber",
-    "img": "../images/barbers/default_img.png",
-    "bio": "",
-    "scheduleAppointment": "",
-    "contact": "",
-    "socialMediaLinks": [],
-    "buttonImg": [],
-    "barberCuts": []
   }
 ]
