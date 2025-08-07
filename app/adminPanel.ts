@@ -2,101 +2,109 @@ import { EventSection } from "./EventSection.js";
 import initializeEvents from "./initEvents.js";
 import initializeAccountCreation from "./initAccountCreation.js";
 
-if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-    let logout = document.getElementById("logout");
-    logout.addEventListener("click", () => {
-        localStorage.clear();
-        window.location.href = "http://localhost:8080";
-    });
+if (typeof window !== "undefined" && typeof document !== "undefined") {
+  let logout = document.getElementById("logout");
+  logout.addEventListener("click", () => {
+    localStorage.clear();
+    window.location.href = "http://localhost:8080";
+  });
 }
-
 
 initializeAccountCreation();
 initializeEvents();
 
 const events: EventSection[] = [];
 
-
 const displayReviewsBtn = document.getElementById("displayReviewsButton");
 let reviewsDisplayed = false;
-const reviewsDisplayContainer = document.getElementById("reviews_display_container");
+const reviewsDisplayContainer = document.getElementById(
+  "reviews_display_container"
+);
 
 displayReviewsBtn.addEventListener("click", () => {
-    if (reviewsDisplayed) {
-        displayReviewsBtn.innerText = "Show Reviews";
-        reviewsDisplayContainer.style.display = "none";
-        reviewsDisplayed = false;
-    } else {
-        displayReviewsBtn.innerText = "Hide Reviews";
-        reviewsDisplayContainer.style.display = "block";
-        reviewsDisplayed = true;
-    }
+  if (reviewsDisplayed) {
+    displayReviewsBtn.innerText = "Show Reviews";
+    reviewsDisplayContainer.style.display = "none";
+    reviewsDisplayed = false;
+  } else {
+    displayReviewsBtn.innerText = "Hide Reviews";
+    reviewsDisplayContainer.style.display = "block";
+    reviewsDisplayed = true;
+  }
 });
 
 async function displayReviews() {
-    const slider_value_display = document.getElementById("slider_value");
-    const slider: HTMLInputElement = document.getElementById("reviews_filter") as HTMLInputElement;
-    let slider_value: number = Number.parseInt(slider.value);
-    let reviewsContainer = document.getElementById("reviewsDisplay");
-    let avgReview = document.getElementById("avgReviewRating");
-    let avgRating = 0;
-    let reviews;
+  const slider_value_display = document.getElementById("slider_value");
+  const slider: HTMLInputElement = document.getElementById(
+    "reviews_filter"
+  ) as HTMLInputElement;
+  let slider_value: number = Number.parseInt(slider.value);
+  let reviewsContainer = document.getElementById("reviewsDisplay");
+  let avgReview = document.getElementById("avgReviewRating");
+  let avgRating = 0;
+  let reviews;
 
-    slider_value_display.innerHTML = slider.value;
+  slider_value_display.innerHTML = slider.value;
 
-    slider.oninput = function () {
-        if (slider.value == "6") {
-            slider_value_display.innerHTML = "All"
-        } else {
-            slider_value_display.innerHTML = slider.value;
-        }
-        slider_value = Number.parseInt(slider.value);
-        reviewsContainer.innerHTML = "";
-        drawReviews(reviews);
+  slider.oninput = function () {
+    if (slider.value == "6") {
+      slider_value_display.innerHTML = "All";
+    } else {
+      slider_value_display.innerHTML = slider.value;
     }
+    slider_value = Number.parseInt(slider.value);
+    reviewsContainer.innerHTML = "";
+    drawReviews(reviews);
+  };
 
-    async function getReviews() {
-        reviews = await ((await fetch("../reviews.json")).json());
+  async function getReviews() {
+    reviews = await (await fetch("../reviews.json")).json();
 
-        drawReviews(reviews);
-        getAvgReviewRating(reviews);
+    drawReviews(reviews);
+    getAvgReviewRating(reviews);
+  }
+
+  getReviews();
+
+  function getAvgReviewRating(reviewsArr) {
+    reviewsArr.forEach((review) => {
+      avgRating += review.rating;
+    });
+
+    let rating = Math.round((avgRating / reviewsArr.length) * 10) / 10;
+
+    avgReview.innerHTML = `Average rating: ${rating} <img id="rating_star" src="../images/icons/star-svgrepo-com.svg"/>`;
+
+    let star = document.getElementById("rating_star");
+
+    if (rating <= 2) {
+      star.style.filter =
+        "invert(1) brightness(42%) sepia(100%) saturate(405%) hue-rotate(300deg)";
+    } else if (rating >= 4) {
+      star.style.filter =
+        "invert(1) brightness(52%) sepia(100%) saturate(405%) hue-rotate(440deg)";
+    } else {
+      star.style.filter =
+        "invert(1) brightness(80%) sepia(100%) saturate(365%);";
     }
+  }
 
-    getReviews();
+  function drawReviews(reviewsArr) {
+    reviewsContainer.innerHTML = " ";
+    reviewsArr.sort((a, b) => {
+      return a.rating - b.rating;
+    });
 
-    function getAvgReviewRating(reviewsArr) {
-        reviewsArr.forEach((review) => {
-            avgRating += review.rating
-        });
+    for (let i = 0; i < reviewsArr.length; i++) {
+      let review = reviewsArr[i];
 
-        let rating = Math.round(avgRating / reviewsArr.length * 10) / 10
+      if (review.rating > slider_value) {
+        continue;
+      }
 
-        avgReview.innerHTML = `Average rating: ${rating} <img id="rating_star" src="../images/icons/star-svgrepo-com.svg"/>`;
-
-        let star = document.getElementById("rating_star");
-
-        if (rating <= 2) {
-            star.style.filter = "invert(1) brightness(42%) sepia(100%) saturate(405%) hue-rotate(300deg)";
-        } else if (rating >= 4) {
-            star.style.filter = "invert(1) brightness(52%) sepia(100%) saturate(405%) hue-rotate(440deg)";
-        } else {
-            star.style.filter = "invert(1) brightness(80%) sepia(100%) saturate(365%);";
-        }
-    }
-
-
-    function drawReviews(reviewsArr) {
-        reviewsContainer.innerHTML = " ";
-        reviewsArr.sort((a, b) => { return a.rating - b.rating });
-
-        for (let i = 0; i < reviewsArr.length; i++) {
-            let review = reviewsArr[i];
-
-            if (review.rating > slider_value) {
-                continue;
-            }
-
-            reviewsContainer.insertAdjacentHTML('afterbegin', `
+      reviewsContainer.insertAdjacentHTML(
+        "afterbegin",
+        `
             <div class="flex-menu"> 
             <div class="reviewCard" id="card${review.id}">
              <div class="flex-edit-menu">
@@ -108,99 +116,124 @@ async function displayReviews() {
              <div class="reviewDescription" id="description${review.id}">Description: ${review.testimony}</div> 
             </div>
             <div id="menu${review.id}" class="menu"> <div id="close${review.id}" class="closeMenuBtn"><img src="../images/icons/close-circle-svgrepo-com.svg"  alt="Close button"/></div> <button id="delete${review.id}" class="btn-delete">Delete</button> </div>
-            </div>`);
+            </div>`
+      );
 
-            let deleteReview = document.getElementById(`delete${review.id}`);
+      let deleteReview = document.getElementById(`delete${review.id}`);
 
-            deleteReview.addEventListener("click", async () => {
-                try {
-                    const response = await fetch('/delete-review', {
-                        method: 'DELETE',
-                        headers: {
-                            "content-type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            id: review.id
-                        })
-                    });
-                    console.log("Deleting review:", review.id);
-                    // Display server response message
-                    if (response.ok) {
-                        console.log("Review Deleted", review.id);
-                        window.location.reload();
-                    }
-
-                } catch (error) {
-                    console.log(error);
-                }
-            })
-
-            const editIcon = document.getElementById(`editIcon${review.id}`);
-            const menu = document.getElementById(`menu${review.id}`);
-            const closeIcon = document.getElementById(`close${review.id}`);
-
-            editIcon.addEventListener("click", () => {
-                menu.style.display = "block";
-            });
-
-            closeIcon.addEventListener("click", () => {
-                menu.style.display = "none";
-            });
-
-            let container = document.getElementById(`rating${review.id}`);
-
-            for (let i = 0; i < 5; i++) {
-                if (i < review.rating) {
-                    container.insertAdjacentHTML('beforeend', `<img id="${review.id}${i}" class="reviewRating" src="../images/icons/star-svgrepo-com.svg" alt="Rating: ${review.rating}" />`);
-                    if (review.rating <= 2) {
-                        // container.style.background = "rgba(255,3,3,0.8)"
-                        document.getElementById(`${review.id}${i}`).style.filter = "invert(1) brightness(42%) sepia(100%) saturate(405%) hue-rotate(300deg)";
-                    } else if (review.rating >= 4) {
-                        // container.style.background = "rgba(3,255,3,0.8)"
-                        document.getElementById(`${review.id}${i}`).style.filter = "invert(1) brightness(52%) sepia(100%) saturate(405%) hue-rotate(440deg)";
-                    }
-                } else {
-                    container.insertAdjacentHTML('beforeend', `<img id="${review.id}${i}" class="reviewRatingNotChosen" src="../images/icons/star-svgrepo-com.svg" alt="Rating: ${review.rating}" />`);
-                }
-            }
+      deleteReview.addEventListener("click", async () => {
+        try {
+          const response = await fetch("/delete-review", {
+            method: "DELETE",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({
+              id: review.id,
+            }),
+          });
+          console.log("Deleting review:", review.id);
+          // Display server response message
+          if (response.ok) {
+            console.log("Review Deleted", review.id);
+            window.location.reload();
+          }
+        } catch (error) {
+          console.log(error);
         }
+      });
+
+      const editIcon = document.getElementById(`editIcon${review.id}`);
+      const menu = document.getElementById(`menu${review.id}`);
+      const closeIcon = document.getElementById(`close${review.id}`);
+
+      editIcon.addEventListener("click", () => {
+        menu.style.display = "block";
+      });
+
+      closeIcon.addEventListener("click", () => {
+        menu.style.display = "none";
+      });
+
+      let container = document.getElementById(`rating${review.id}`);
+
+      for (let i = 0; i < 5; i++) {
+        if (i < review.rating) {
+          container.insertAdjacentHTML(
+            "beforeend",
+            `<img id="${review.id}${i}" class="reviewRating" src="../images/icons/star-svgrepo-com.svg" alt="Rating: ${review.rating}" />`
+          );
+          if (review.rating <= 2) {
+            // container.style.background = "rgba(255,3,3,0.8)"
+            document.getElementById(`${review.id}${i}`).style.filter =
+              "invert(1) brightness(42%) sepia(100%) saturate(405%) hue-rotate(300deg)";
+          } else if (review.rating >= 4) {
+            // container.style.background = "rgba(3,255,3,0.8)"
+            document.getElementById(`${review.id}${i}`).style.filter =
+              "invert(1) brightness(52%) sepia(100%) saturate(405%) hue-rotate(440deg)";
+          }
+        } else {
+          container.insertAdjacentHTML(
+            "beforeend",
+            `<img id="${review.id}${i}" class="reviewRatingNotChosen" src="../images/icons/star-svgrepo-com.svg" alt="Rating: ${review.rating}" />`
+          );
+        }
+      }
     }
-};
+  }
+}
 
 function displayEvents() {
-    let events;
-    const eventsContainer = document.getElementById("eventsDisplay");
-    const eventsDisplayContainer = document.getElementById("events_display_container");
-    let eventsDisplayed = false;
-    const eventsDisplayBtn = document.getElementById("displayEventsButton");
+  let events;
+  const eventsContainer = document.getElementById("eventsDisplay");
+  const eventsDisplayContainer = document.getElementById(
+    "events_display_container"
+  );
+  let eventsDisplayed = false;
+  const eventsDisplayBtn = document.getElementById("displayEventsButton");
 
-    eventsDisplayBtn.addEventListener("click", () => {
-        if (eventsDisplayed) {
-            eventsDisplayBtn.innerText = "Show Events";
-            eventsDisplayed = false;
-            eventsDisplayContainer.style.display = "none";
-        } else {
-            eventsDisplayBtn.innerText = "Hide Events";
-            eventsDisplayed = true;
-            eventsDisplayContainer.style.display = "block";
-        }
-    });
-
-    async function getEvents() {
-        events = await ((await fetch("../events.json")).json());
-
-        drawEvents(events as { id: number, title: string, description: string, imageSrc: string }[]);
+  eventsDisplayBtn.addEventListener("click", () => {
+    if (eventsDisplayed) {
+      eventsDisplayBtn.innerText = "Show Events";
+      eventsDisplayed = false;
+      eventsDisplayContainer.style.display = "none";
+    } else {
+      eventsDisplayBtn.innerText = "Hide Events";
+      eventsDisplayed = true;
+      eventsDisplayContainer.style.display = "block";
     }
+  });
 
-    getEvents();
+  async function getEvents() {
+    events = await (await fetch("../events.json")).json();
 
-    function drawEvents(events: { id: number, title: string, description: string, imageSrc: string }[]) {
-        eventsContainer.innerHTML = " ";
+    drawEvents(
+      events as {
+        id: number;
+        title: string;
+        description: string;
+        imageSrc: string;
+      }[]
+    );
+  }
 
+  getEvents();
 
-        for (let i = 0; i < events.length; i++) {
-            let event = events[i];
-            eventsContainer.insertAdjacentHTML("beforeend", `
+  function drawEvents(
+    events: {
+      id: number;
+      title: string;
+      description: string;
+      imageSrc: string;
+    }[]
+  ) {
+    eventsContainer.innerHTML = " ";
+
+    for (let i = 0; i < events.length; i++) {
+      let event = events[i];
+      eventsContainer.insertAdjacentHTML(
+        "beforeend",
+        `
              <div class="flex-menu"> 
               <div id="card${event.id}" class="event-card">
                <div class="flex-edit-menu">
@@ -212,91 +245,96 @@ function displayEvents() {
               </div>
               <div id="menu${event.id}" class="menu"> <div id="close${event.id}" class="closeMenuBtn"><img src="../images/icons/close-circle-svgrepo-com.svg"  alt="Close button"/> </div> <button id="delete${event.id}" class="btn-delete">Delete</button>  <button id="edit${event.id}" class="btn">Edit</button> </div>
              </div>
-            `);
+            `
+      );
 
-            const editIcon = document.getElementById(`editIcon${event.id}`);
-            const menu = document.getElementById(`menu${event.id}`);
-            const closeIcon = document.getElementById(`close${event.id}`);
+      const editIcon = document.getElementById(`editIcon${event.id}`);
+      const menu = document.getElementById(`menu${event.id}`);
+      const closeIcon = document.getElementById(`close${event.id}`);
 
-            editIcon.addEventListener("click", () => {
-                menu.style.display = "flex";
+      editIcon.addEventListener("click", () => {
+        menu.style.display = "flex";
+      });
 
-            });
+      closeIcon.addEventListener("click", () => {
+        menu.style.display = "none";
+      });
 
-            closeIcon.addEventListener("click", () => {
-                menu.style.display = "none";
-            });
-
-            const deleteBtn = document.getElementById(`delete${event.id}`);
-            deleteBtn.addEventListener("click", async () => {
-                try {
-                    const response = await fetch('/delete-event', {
-                        method: 'DELETE',
-                        headers: {
-                            "content-type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            id: event.id
-                        })
-                    });
-                    console.log("Deleting event:", event.id);
-                    // Display server response message
-                    if (response.ok) {
-                        console.log("Event Deleted", event.id);
-                        window.location.reload();
-                    }
-
-                } catch (error) {
-                    console.log(error);
-                }
-            });
-
-            const editBtn = document.getElementById(`edit${event.id}`);
-            editBtn.addEventListener("click", () => {
-                alert('Not implemented.')
-            });
-
+      const deleteBtn = document.getElementById(`delete${event.id}`);
+      deleteBtn.addEventListener("click", async () => {
+        try {
+          const response = await fetch("/delete-event", {
+            method: "DELETE",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({
+              id: event.id,
+            }),
+          });
+          console.log("Deleting event:", event.id);
+          // Display server response message
+          if (response.ok) {
+            console.log("Event Deleted", event.id);
+            window.location.reload();
+          }
+        } catch (error) {
+          console.log(error);
         }
+      });
 
+      const editBtn = document.getElementById(`edit${event.id}`);
+      editBtn.addEventListener("click", () => {
+        alert("Not implemented.");
+      });
     }
+  }
 }
 
-
 function displayAccounts() {
-    let accounts;
-    let barbers;
-    const accountsContainer = document.getElementById("accountsDisplay");
-    const accountsDisplayContainer = document.getElementById("accounts_display_container");
-    let accountsDisplayed = false;
-    const accountsDisplayBtn = document.getElementById("displayAccountsButton");
-    accountsDisplayContainer.style.display = "none"
+  let accounts;
+  let barbers;
+  const accountsContainer = document.getElementById("accountsDisplay");
+  const accountsDisplayContainer = document.getElementById(
+    "accounts_display_container"
+  );
+  let accountsDisplayed = false;
+  const accountsDisplayBtn = document.getElementById("displayAccountsButton");
+  accountsDisplayContainer.style.display = "none";
 
-    accountsDisplayBtn.addEventListener("click", () => {
-        if (accountsDisplayed) {
-            accountsDisplayBtn.innerText = "Show Accounts";
-            accountsDisplayed = false;
-            accountsDisplayContainer.style.display = "none";
-        } else {
-            accountsDisplayBtn.innerText = "Hide Accounts";
-            accountsDisplayed = true;
-            accountsDisplayContainer.style.display = "block";
-        }
-    });
-
-    async function getAccounts() {
-        accounts = await ((await fetch("../accounts.json")).json());
-        barbers = await ((await fetch("../barbers.json")).json());
-
-        drawAccounts(accounts as { id: number, accountType: string, login: string }[], barbers as { id: number, name: string, img: string }[]);
+  accountsDisplayBtn.addEventListener("click", () => {
+    if (accountsDisplayed) {
+      accountsDisplayBtn.innerText = "Show Accounts";
+      accountsDisplayed = false;
+      accountsDisplayContainer.style.display = "none";
+    } else {
+      accountsDisplayBtn.innerText = "Hide Accounts";
+      accountsDisplayed = true;
+      accountsDisplayContainer.style.display = "block";
     }
-    getAccounts();
+  });
 
-    function drawAccounts(accounts: { id: number, accountType: string, login: string }[], barbers: { id: number, name: string, img: string }[]) {
+  async function getAccounts() {
+    accounts = await (await fetch("../accounts.json")).json();
+    barbers = await (await fetch("../barbers.json")).json();
 
-        for (let i = 0; i < accounts.length; i++) {
-            let account = accounts[i];
+    drawAccounts(
+      accounts as { id: number; accountType: string; login: string }[],
+      barbers as { id: number; name: string; img: string }[]
+    );
+  }
+  getAccounts();
 
-            accountsContainer.insertAdjacentHTML("beforeend", `
+  function drawAccounts(
+    accounts: { id: number; accountType: string; login: string }[],
+    barbers: { id: number; name: string; img: string }[]
+  ) {
+    for (let i = 0; i < accounts.length; i++) {
+      let account = accounts[i];
+
+      accountsContainer.insertAdjacentHTML(
+        "beforeend",
+        `
         <div class="flex-menu">
               <div id="card${account.id}" class="event-card">
                <div class="flex-edit-menu">
@@ -307,80 +345,81 @@ function displayAccounts() {
               </div>
               <div id="menuAccount${account.id}" class="menu"> <div id="closeAccount${account.id}" class="closeMenuBtn"><img src="../images/icons/close-circle-svgrepo-com.svg"  alt="Close button"/> </div> <button id="delete${account.id}" class="btn-delete">Delete</button> </div>
              </div>
-        `)
+        `
+      );
 
-            if (account.accountType == "barber") {
-                let container = document.getElementById(`card${account.id}`);
+      if (account.accountType == "barber") {
+        let container = document.getElementById(`card${account.id}`);
 
-                let barber = barbers.find((barber) => {
-                    return account.id == barber.id
-                });
+        let barber = barbers.find((barber) => {
+          return account.id == barber.id;
+        });
 
-                container.insertAdjacentHTML("beforeend", `<div>${barber.name}</div>`);
-                if (barber.img) {
-                    container.insertAdjacentHTML("beforeend", `<img class="eventImg" src="${barber.img}" alt="barber image"/>`);
-                }
-            }
+        container.insertAdjacentHTML("beforeend", `<div>${barber.name}</div>`);
+        if (barber.img) {
+          container.insertAdjacentHTML(
+            "beforeend",
+            `<img class="eventImg" src="${barber.img}" alt="barber image"/>`
+          );
+        }
+      }
 
-            const editIcon = document.getElementById(`editIconAccount${account.id}`);
-            const menu = document.getElementById(`menuAccount${account.id}`);
-            const closeIcon = document.getElementById(`closeAccount${account.id}`);
+      const editIcon = document.getElementById(`editIconAccount${account.id}`);
+      const menu = document.getElementById(`menuAccount${account.id}`);
+      const closeIcon = document.getElementById(`closeAccount${account.id}`);
 
-            editIcon.addEventListener("click", () => {
-                menu.style.display = "flex";
-            });
+      editIcon.addEventListener("click", () => {
+        menu.style.display = "flex";
+      });
 
-            closeIcon.addEventListener("click", () => {
-                menu.style.display = "none";
-            });
+      closeIcon.addEventListener("click", () => {
+        menu.style.display = "none";
+      });
 
-            const deleteBtn = document.getElementById(`delete${account.id}`);
-            deleteBtn.addEventListener("click", async () => {
-                alert("Deleting accounts can have unintended consequences. This action cannot be reversed.");
-                let deleteRequest = prompt(`Type: ${account.login} to delete.`);
+      const deleteBtn = document.getElementById(`delete${account.id}`);
+      deleteBtn.addEventListener("click", async () => {
+        alert(
+          "Deleting accounts can have unintended consequences. This action cannot be reversed."
+        );
+        let deleteRequest = prompt(`Type: ${account.login} to delete.`);
 
-                if (account.login != deleteRequest) {
-                    alert("Account not deleted.")
-                    return;
-                }
-
-                const acc = {
-                    id: account.id,
-                    username: account.login
-                }
-
-                try {
-                    const response = await fetch('/delete-account', {
-                        method: 'DELETE',
-                        headers: {
-                            "content-type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            id: account.id
-                        })
-                    });
-                    console.log("Deleting account: ", account.id);
-                    // Display server response message
-                    if (response.ok) {
-                        console.log("Account Deleted: ", acc.id);
-                        window.location.reload();
-                        alert("Account deleted")
-                        console.log("Account Deleted: ", acc.id);
-                        alert("Account Deleted: " + acc.username);
-                    }
-
-                } catch (error) {
-                    console.log(error);
-                }
-            });
-
+        if (account.login != deleteRequest) {
+          alert("Account not deleted.");
+          return;
         }
 
-    }
+        const acc = {
+          id: account.id,
+          username: account.login,
+        };
 
+        try {
+          const response = await fetch("/delete-account", {
+            method: "DELETE",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({
+              id: account.id,
+            }),
+          });
+          console.log("Deleting account: ", account.id);
+          // Display server response message
+          if (response.ok) {
+            console.log("Account Deleted: ", acc.id);
+            window.location.reload();
+            alert("Account deleted");
+            console.log("Account Deleted: ", acc.id);
+            alert("Account Deleted: " + acc.username);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      });
+    }
+  }
 }
 
 displayReviews();
 displayEvents();
 displayAccounts();
-
