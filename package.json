@@ -19,7 +19,7 @@
     "update-css": "rm -rf  ./lib/css && npm run css",
     "update-html": "rm -rf  ./lib/html && rm -rf ./lib/images && npm run html && npm run images",
     "update-all": "npm run update-css && npm run update-html && npm run compile",
-    "bundle": "rm -rf dist && mkdirp ./dist && npx webpack --config webpack.config.cjs && mkdirp ./lib/dist && cp -r ./dist ./lib/dist",
+    "bundle": "rm -rf dist && mkdirp dist && npx webpack --config webpack.config.cjs && mkdirp lib/dist && cp -a dist/. lib/dist/",
     "start": "nodemon ./lib/server.js",
     "images": "mkdirp ./lib/images && cp -r ./images/* ./lib/images",
     "build": "npm run delete && npm run bundle && npm run accounts && npm run events && npm run barbers && npm run partners && npm run reviews && npm run css && npm run images && npm run html && npm run compile && npm run package && npm start"
